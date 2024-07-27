@@ -1,0 +1,37 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+
+\PYG{+w}{    }\PYG{c+cp}{\PYGZsh{}!/bin/bash}
+\PYG{+w}{    }\PYG{c+cp}{\PYGZsh{}SBATCH \PYGZhy{}\PYGZhy{}job\PYGZhy{}name=tsunami}
+\PYG{+w}{    }\PYG{c+cp}{\PYGZsh{}SBATCH \PYGZhy{}\PYGZhy{}output=tsunami\PYGZus{}output.txt}
+\PYG{+w}{    }\PYG{c+cp}{\PYGZsh{}SBATCH \PYGZhy{}\PYGZhy{}error=tsunami\PYGZus{}error.txt}
+\PYG{+w}{    }\PYG{c+cp}{\PYGZsh{}SBATCH \PYGZhy{}\PYGZhy{}partition=s\PYGZus{}hadoop}
+\PYG{+w}{    }\PYG{c+cp}{\PYGZsh{}SBATCH \PYGZhy{}\PYGZhy{}nodes=1}
+\PYG{+w}{    }\PYG{c+cp}{\PYGZsh{}SBATCH \PYGZhy{}\PYGZhy{}ntasks=1}
+\PYG{+w}{    }\PYG{c+cp}{\PYGZsh{}SBATCH \PYGZhy{}\PYGZhy{}time=180:00}
+\PYG{+w}{    }\PYG{c+cp}{\PYGZsh{}SBATCH \PYGZhy{}\PYGZhy{}cpus\PYGZhy{}per\PYGZhy{}task=72}
+
+
+\PYG{+w}{    }\PYG{c+cp}{\PYGZsh{} Set the email address where notifications should be sent.}
+\PYG{+w}{    }\PYG{c+cp}{\PYGZsh{}SBATCH \PYGZhy{}\PYGZhy{}mail\PYGZhy{}user=daniel.schicker@uni\PYGZhy{}jena.de}
+
+\PYG{+w}{    }\PYG{c+cp}{\PYGZsh{} Specify the types of email notifications you want to receive.}
+\PYG{+w}{    }\PYG{c+cp}{\PYGZsh{}SBATCH \PYGZhy{}\PYGZhy{}mail\PYGZhy{}type=BEGIN,END,FAIL}
+
+\PYG{+w}{    }\PYG{c+cp}{\PYGZsh{} Load modules}
+\PYG{+w}{   }\PYG{k}{module}\PYG{+w}{ }\PYG{n}{load}\PYG{+w}{ }\PYG{n}{tools}\PYG{o}{/}\PYG{n}{python}\PYG{o}{/}\PYG{l+m+mf}{3.8}
+\PYG{+w}{   }\PYG{k}{module}\PYG{+w}{ }\PYG{n}{load}\PYG{+w}{ }\PYG{n}{compiler}\PYG{o}{/}\PYG{n}{gcc}\PYG{o}{/}\PYG{l+m+mf}{11.2.0}
+\PYG{+w}{   }\PYG{k}{module}\PYG{+w}{ }\PYG{n}{load}\PYG{+w}{ }\PYG{n}{compiler}\PYG{o}{/}\PYG{n}{intel}\PYG{o}{/}\PYG{l+m+mi}{2020}\PYG{o}{\PYGZhy{}}\PYG{n}{Update2}
+\PYG{+w}{   }\PYG{k}{module}\PYG{+w}{ }\PYG{n}{load}\PYG{+w}{ }\PYG{n}{libs}\PYG{o}{/}\PYG{n}{hdf5}\PYG{o}{/}\PYG{l+m+mf}{1.10.8}\PYG{o}{\PYGZhy{}}\PYG{n}{gcc}\PYG{l+m+mf}{\PYGZhy{}10.2.0}
+\PYG{+w}{   }\PYG{k}{module}\PYG{+w}{ }\PYG{n}{load}\PYG{+w}{ }\PYG{n}{libs}\PYG{o}{/}\PYG{n}{zlib}\PYG{o}{/}\PYG{l+m+mf}{1.2.11}\PYG{o}{\PYGZhy{}}\PYG{n}{intel}\PYG{l+m+mi}{\PYGZhy{}2018}
+\PYG{+w}{   }\PYG{k}{module}\PYG{+w}{ }\PYG{n}{load}\PYG{+w}{ }\PYG{n}{libs}\PYG{o}{/}\PYG{n}{netcdf}\PYG{o}{/}\PYG{l+m+mf}{4.6.1}\PYG{o}{\PYGZhy{}}\PYG{n}{intel}\PYG{l+m+mi}{\PYGZhy{}2018}
+\PYG{+w}{   }\PYG{n}{python3}\PYG{l+m+mf}{.8}\PYG{+w}{ }\PYG{o}{\PYGZhy{}}\PYG{n}{m}\PYG{+w}{ }\PYG{n}{pip}\PYG{+w}{ }\PYG{n}{install}\PYG{+w}{ }\PYG{o}{\PYGZhy{}\PYGZhy{}}\PYG{n}{user}\PYG{+w}{ }\PYG{n}{scons}
+
+\PYG{+w}{   }\PYG{n}{date}
+\PYG{+w}{   }\PYG{n}{cd}\PYG{+w}{ }\PYG{o}{/}\PYG{n}{beegfs}\PYG{o}{/}\PYG{n}{go87vew}\PYG{o}{/}\PYG{n}{tsunami\PYGZus{}lab}
+\PYG{+w}{   }\PYG{n}{scons}
+\PYG{+w}{   }\PYG{n}{OMP\PYGZus{}NUM\PYGZus{}THREADS}\PYG{o}{=}\PYG{l+m+mi}{32}\PYG{+w}{ }\PYG{p}{.}\PYG{o}{/}\PYG{n}{build}\PYG{o}{/}\PYG{n}{tsunami\PYGZus{}lab}
+\PYG{+w}{   }\PYG{n}{OMP\PYGZus{}NUM\PYGZus{}THREADS}\PYG{o}{=}\PYG{l+m+mi}{34}\PYG{+w}{ }\PYG{p}{.}\PYG{o}{/}\PYG{n}{build}\PYG{o}{/}\PYG{n}{tsunami\PYGZus{}lab}
+\PYG{+w}{   }\PYG{n}{OMP\PYGZus{}NUM\PYGZus{}THREADS}\PYG{o}{=}\PYG{l+m+mi}{36}\PYG{+w}{ }\PYG{p}{.}\PYG{o}{/}\PYG{n}{build}\PYG{o}{/}\PYG{n}{tsunami\PYGZus{}lab}
+
+
+\end{Verbatim}

@@ -1,0 +1,37 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+
+\PYG{+w}{    }\PYG{err}{\PYGZsh{}}\PYG{o}{!}\PYG{err}{/bin/bash}
+\PYG{+w}{    }\PYG{err}{\PYGZsh{}}\PYG{n+nx}{SBATCH}\PYG{+w}{ }\PYG{o}{\PYGZhy{}\PYGZhy{}}\PYG{n+nx}{job}\PYG{o}{\PYGZhy{}}\PYG{n+nx}{name}\PYG{o}{=}\PYG{n+nx}{tsunami}
+\PYG{+w}{    }\PYG{err}{\PYGZsh{}}\PYG{n+nx}{SBATCH}\PYG{+w}{ }\PYG{o}{\PYGZhy{}\PYGZhy{}}\PYG{n+nx}{output}\PYG{o}{=}\PYG{n+nx}{tsunami\PYGZus{}output}\PYG{p}{.}\PYG{n+nx}{txt}
+\PYG{+w}{    }\PYG{err}{\PYGZsh{}}\PYG{n+nx}{SBATCH}\PYG{+w}{ }\PYG{o}{\PYGZhy{}\PYGZhy{}}\PYG{n+nx}{error}\PYG{o}{=}\PYG{n+nx}{tsunami\PYGZus{}error}\PYG{p}{.}\PYG{n+nx}{txt}
+\PYG{+w}{    }\PYG{err}{\PYGZsh{}}\PYG{n+nx}{SBATCH}\PYG{+w}{ }\PYG{o}{\PYGZhy{}\PYGZhy{}}\PYG{n+nx}{partition}\PYG{o}{=}\PYG{n+nx}{s\PYGZus{}hadoop}
+\PYG{+w}{    }\PYG{err}{\PYGZsh{}}\PYG{n+nx}{SBATCH}\PYG{+w}{ }\PYG{o}{\PYGZhy{}\PYGZhy{}}\PYG{n+nx}{nodes}\PYG{o}{=}\PYG{l+m+mf}{1}
+\PYG{+w}{    }\PYG{err}{\PYGZsh{}}\PYG{n+nx}{SBATCH}\PYG{+w}{ }\PYG{o}{\PYGZhy{}\PYGZhy{}}\PYG{n+nx}{ntasks}\PYG{o}{=}\PYG{l+m+mf}{1}
+\PYG{+w}{    }\PYG{err}{\PYGZsh{}}\PYG{n+nx}{SBATCH}\PYG{+w}{ }\PYG{o}{\PYGZhy{}\PYGZhy{}}\PYG{n+nx}{time}\PYG{o}{=}\PYG{n+nx}{180}\PYG{o}{:}\PYG{k+kt}{00}
+\PYG{+w}{    }\PYG{err}{\PYGZsh{}}\PYG{n+nx}{SBATCH}\PYG{+w}{ }\PYG{o}{\PYGZhy{}\PYGZhy{}}\PYG{n+nx}{cpus}\PYG{o}{\PYGZhy{}}\PYG{n+nx}{per}\PYG{o}{\PYGZhy{}}\PYG{n+nx}{task}\PYG{o}{=}\PYG{l+m+mf}{72}
+
+
+\PYG{+w}{    }\PYG{err}{\PYGZsh{}}\PYG{+w}{ }\PYG{n+nb}{Set}\PYG{+w}{ }\PYG{n+nx}{the}\PYG{+w}{ }\PYG{n+nx}{email}\PYG{+w}{ }\PYG{n+nx}{address}\PYG{+w}{ }\PYG{n+nx}{where}\PYG{+w}{ }\PYG{n+nx}{notifications}\PYG{+w}{ }\PYG{n+nx}{should}\PYG{+w}{ }\PYG{n+nx}{be}\PYG{+w}{ }\PYG{n+nx}{sent}\PYG{p}{.}
+\PYG{+w}{    }\PYG{err}{\PYGZsh{}}\PYG{n+nx}{SBATCH}\PYG{+w}{ }\PYG{o}{\PYGZhy{}\PYGZhy{}}\PYG{n+nx}{mail}\PYG{o}{\PYGZhy{}}\PYG{n+nx}{user}\PYG{o}{=}\PYG{n+nx}{daniel}\PYG{p}{.}\PYG{n+nx}{schicker}\PYG{k+kd}{@uni}\PYG{o}{\PYGZhy{}}\PYG{n+nx}{jena}\PYG{p}{.}\PYG{n+nx}{de}
+
+\PYG{+w}{    }\PYG{err}{\PYGZsh{}}\PYG{+w}{ }\PYG{n+nx}{Specify}\PYG{+w}{ }\PYG{n+nx}{the}\PYG{+w}{ }\PYG{n+nx}{types}\PYG{+w}{ }\PYG{k}{of}\PYG{+w}{ }\PYG{n+nx}{email}\PYG{+w}{ }\PYG{n+nx}{notifications}\PYG{+w}{ }\PYG{n+nx}{you}\PYG{+w}{ }\PYG{n+nx}{want}\PYG{+w}{ }\PYG{n+nx}{to}\PYG{+w}{ }\PYG{n+nx}{receive}\PYG{p}{.}
+\PYG{+w}{    }\PYG{err}{\PYGZsh{}}\PYG{n+nx}{SBATCH}\PYG{+w}{ }\PYG{o}{\PYGZhy{}\PYGZhy{}}\PYG{n+nx}{mail}\PYG{o}{\PYGZhy{}}\PYG{k+kr}{type}\PYG{o}{=}\PYG{n+nx}{BEGIN}\PYG{p}{,}\PYG{n+nx}{END}\PYG{p}{,}\PYG{n+nx}{FAIL}
+
+\PYG{+w}{    }\PYG{err}{\PYGZsh{}}\PYG{+w}{ }\PYG{n+nx}{Load}\PYG{+w}{ }\PYG{k+kr}{module}\PYG{n+nx}{s}
+\PYG{+w}{   }\PYG{k+kr}{module}\PYG{+w}{ }\PYG{n+nx}{load}\PYG{+w}{ }\PYG{n+nx}{tools}\PYG{o}{/}\PYG{n+nx}{python}\PYG{o}{/}\PYG{l+m+mf}{3.8}
+\PYG{+w}{   }\PYG{k+kr}{module}\PYG{+w}{ }\PYG{n+nx}{load}\PYG{+w}{ }\PYG{n+nx}{compiler}\PYG{o}{/}\PYG{n+nx}{gcc}\PYG{o}{/}\PYG{l+m+mf}{11.2.0}
+\PYG{+w}{   }\PYG{k+kr}{module}\PYG{+w}{ }\PYG{n+nx}{load}\PYG{+w}{ }\PYG{n+nx}{compiler}\PYG{o}{/}\PYG{n+nx}{intel}\PYG{o}{/}\PYG{l+m+mf}{2020}\PYG{o}{\PYGZhy{}}\PYG{n+nx}{Update2}
+\PYG{+w}{   }\PYG{k+kr}{module}\PYG{+w}{ }\PYG{n+nx}{load}\PYG{+w}{ }\PYG{n+nx}{libs}\PYG{o}{/}\PYG{n+nx}{hdf5}\PYG{o}{/}\PYG{l+m+mf}{1.10.8}\PYG{o}{\PYGZhy{}}\PYG{n+nx}{gcc}\PYG{o}{\PYGZhy{}}\PYG{l+m+mf}{10.2.0}
+\PYG{+w}{   }\PYG{k+kr}{module}\PYG{+w}{ }\PYG{n+nx}{load}\PYG{+w}{ }\PYG{n+nx}{libs}\PYG{o}{/}\PYG{n+nx}{zlib}\PYG{o}{/}\PYG{l+m+mf}{1.2.11}\PYG{o}{\PYGZhy{}}\PYG{n+nx}{intel}\PYG{o}{\PYGZhy{}}\PYG{l+m+mf}{2018}
+\PYG{+w}{   }\PYG{k+kr}{module}\PYG{+w}{ }\PYG{n+nx}{load}\PYG{+w}{ }\PYG{n+nx}{libs}\PYG{o}{/}\PYG{n+nx}{netcdf}\PYG{o}{/}\PYG{l+m+mf}{4.6.1}\PYG{o}{\PYGZhy{}}\PYG{n+nx}{intel}\PYG{o}{\PYGZhy{}}\PYG{l+m+mf}{2018}
+\PYG{+w}{   }\PYG{n+nx}{python3}\PYG{l+m+mf}{.8}\PYG{+w}{ }\PYG{o}{\PYGZhy{}}\PYG{n+nx}{m}\PYG{+w}{ }\PYG{n+nx}{pip}\PYG{+w}{ }\PYG{n+nx}{install}\PYG{+w}{ }\PYG{o}{\PYGZhy{}\PYGZhy{}}\PYG{n+nx}{user}\PYG{+w}{ }\PYG{n+nx}{scons}
+
+\PYG{+w}{   }\PYG{n+nx}{date}
+\PYG{+w}{   }\PYG{n+nx}{cd}\PYG{+w}{ }\PYG{o}{/}\PYG{n+nx}{beegfs}\PYG{o}{/}\PYG{n+nx}{go87vew}\PYG{o}{/}\PYG{n+nx}{tsunami\PYGZus{}lab}
+\PYG{+w}{   }\PYG{n+nx}{scons}
+\PYG{+w}{   }\PYG{n+nx}{OMP\PYGZus{}NUM\PYGZus{}THREADS}\PYG{o}{=}\PYG{l+m+mf}{32}\PYG{+w}{ }\PYG{p}{.}\PYG{o}{/}\PYG{n+nx}{build}\PYG{o}{/}\PYG{n+nx}{tsunami\PYGZus{}lab}
+\PYG{+w}{   }\PYG{n+nx}{OMP\PYGZus{}NUM\PYGZus{}THREADS}\PYG{o}{=}\PYG{l+m+mf}{34}\PYG{+w}{ }\PYG{p}{.}\PYG{o}{/}\PYG{n+nx}{build}\PYG{o}{/}\PYG{n+nx}{tsunami\PYGZus{}lab}
+\PYG{+w}{   }\PYG{n+nx}{OMP\PYGZus{}NUM\PYGZus{}THREADS}\PYG{o}{=}\PYG{l+m+mf}{36}\PYG{+w}{ }\PYG{p}{.}\PYG{o}{/}\PYG{n+nx}{build}\PYG{o}{/}\PYG{n+nx}{tsunami\PYGZus{}lab}
+
+
+\end{Verbatim}
