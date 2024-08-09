@@ -35,3 +35,28 @@ def seiteneffekt():
 print(a)
 seiteneffekt()
 print(a)
+
+def liste_aendern(liste):
+    liste.append(4)
+
+meine_liste = [1, 2, 3]
+liste_aendern(meine_liste)
+print(meine_liste)  # Ausgabe: [1, 2, 3, 4]
+
+
+def beispiel_lok_namesraum():
+    x_a = [0]
+    def add_innere():
+        x_a +=1
+        print("Innere Funktion: ", x)
+    def sub_innere():
+        x_a -=1
+        print("Innere Funktion: ", x)
+    def get_innere():
+        print("Innere Funktion: ", x)
+    return(add_innere, sub_innere)
+
+add,sub = beispiel_lok_namesraum()
+
+
+    
