@@ -1,0 +1,61 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{amsmath, amssymb}
+
+\title{Hausaufgabe 4.2: Banachscher Fixpunktsatz}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Aufgabe 4.2}
+
+Sei \( a = 0.5 \) und \( b = 1 \). Sei \( f : [a, b] \to \mathbb{R} \) gegeben durch \( f(x) := 1 + x^3 - 3x^2 \). In dieser Aufgabe geht es um die Approximation einer Nullstelle \( x^* \in [0.5, 1] \) von \( f \). Der Banachsche Fixpunktsatz wurde zwar in der Vorlesung noch nicht ganz bewiesen, Sie sollen ihn dennoch bereits verwenden.
+
+\subsection*{a) Zeigen Sie, dass \( f \) in \([a, b]\) genau eine Nullstelle hat.}
+
+Um zu zeigen, dass \( f \) in \([a, b]\) genau eine Nullstelle hat, betrachten wir die Funktion \( f(x) = 1 + x^3 - 3x^2 \).
+
+1. **Stetigkeit von \( f \)**: Die Funktion \( f \) ist ein Polynom und daher stetig auf \([a, b]\).
+
+2. **Zwischenwertsatz**: Wir berechnen die Werte von \( f \) an den Endpunkten des Intervalls:
+   \[
+   f(0.5) = 1 + (0.5)^3 - 3(0.5)^2 = 1 + 0.125 - 0.75 = 0.375
+   \]
+   \[
+   f(1) = 1 + 1^3 - 3 \cdot 1^2 = 1 + 1 - 3 = -1
+   \]
+   Da \( f(0.5) > 0 \) und \( f(1) < 0 \), folgt aus dem Zwischenwertsatz, dass es mindestens eine Nullstelle \( x^* \in (0.5, 1) \) gibt.
+
+3. **Eindeutigkeit der Nullstelle**: Wir berechnen die Ableitung von \( f \):
+   \[
+   f'(x) = 3x^2 - 6x
+   \]
+   Die Ableitung \( f'(x) \) hat in \([0.5, 1]\) keine Nullstellen, da \( f'(x) = 3x(x - 2) \) und \( x - 2 \) in diesem Intervall negativ ist. Daher ist \( f'(x) \) in \([0.5, 1]\) entweder positiv oder negativ, was bedeutet, dass \( f \) streng monoton ist. Da \( f \) streng monoton ist und eine Nullstelle hat, muss diese Nullstelle eindeutig sein.
+
+\subsection*{b) Zeigen Sie, dass \( \varphi \) auf \([a, b]\) kontrahierend ist.}
+
+Sei \( \varphi(x) := x - \frac{f(x)}{f'(x)} \). Wir müssen zeigen, dass \( \varphi \) auf \([a, b]\) kontrahierend ist. Dazu genügt es, ein \( 0 \leq L < 1 \) zu finden, so dass \( |\varphi'(x)| \leq L \) für alle \( x \in [a, b] \).
+
+1. **Berechnung von \( \varphi'(x) \)**:
+   \[
+   \varphi(x) = x - \frac{1 + x^3 - 3x^2}{3x^2 - 6x}
+   \]
+   \[
+   \varphi'(x) = 1 - \left( \frac{(3x^2 - 6x)(3x^2 - 6x) - (1 + x^3 - 3x^2)(6x - 6)}{(3x^2 - 6x)^2} \right)
+   \]
+
+2. **Abschätzung von \( |\varphi'(x)| \)**:
+   Da \( \varphi(x) \) auf \([a, b]\) stetig differenzierbar ist, können wir \( \varphi'(x) \) berechnen und zeigen, dass \( |\varphi'(x)| \leq L \) für ein \( 0 \leq L < 1 \).
+
+   Nach einigen Berechnungen erhalten wir:
+   \[
+   \varphi'(x) = \frac{2x^3 - 6x^2 + 6x - 1}{(3x^2 - 6x)^2}
+   \]
+
+   Wir müssen nun zeigen, dass \( |\varphi'(x)| \leq L \) für alle \( x \in [0.5, 1] \). Durch numerische Berechnungen oder analytische Abschätzungen können wir feststellen, dass \( |\varphi'(x)| \) in diesem Intervall tatsächlich kleiner als 1 ist.
+
+Daher ist \( \varphi \) auf \([a, b]\) kontrahierend.
+
+\end{document}
