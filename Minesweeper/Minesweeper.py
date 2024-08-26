@@ -9,6 +9,7 @@ class Minesweeper:
         self.mines = mines
         self.buttons = []
         self.mine_grid = [[] for _ in range(rows)] #leere liste für die mines 
+        self.game_over_label = tk.Label(master, text="", font=("Helvetica", 24), fg="red")
         self.create_widgets()
         self.place_mines()
 
@@ -68,15 +69,16 @@ class Minesweeper:
                     count += 1
         return count
     
-        
-        
-
     def game_over(self):
-            for r in range(self.rows):
-                for c in range(self.cols):
-                    if c in self.mine_grid[r]:
-                        self.buttons[r][c].config(text="*", bg="red")
-            print("Game Over")
+        for r in range(self.rows):
+            for c in range(self.cols):
+                if c in self.mine_grid[r]:
+                    self.buttons[r][c].config(text="*", bg="red")
+        self.game_over_label.config(text="Game Over")
+        self.game_over_label.grid(row=self.rows, column=0, columnspan=self.cols)
+
+    
+    
 
 if __name__ == "__main__":
     root = tk.Tk()
