@@ -143,7 +143,7 @@ def create_start_window(hauptfenster):
     
     
     #individuelle textfellder
-    
+""" 
 def on_entry_click(event):
     if entry.get() == 'Breite':
         entry.delete(0, "end")  # Löscht den Platzhaltertext
@@ -162,7 +162,7 @@ def submit_text():
     entered_text = entry.get()
     print(f"Eingegebener Text: {entered_text}")
     # Hier können Sie den Text weiterverarbeiten oder speichern
-
+"""""""""
     
     
     
@@ -175,20 +175,53 @@ class Minesweeper:
         self.mines = mines
         self.buttons = []
         self.mine_grid = [[] for _ in range(rows)] #leere liste für die mines 
-        self.game_over_label = tk.Label(master, text="", font=("Helvetica", 24), fg="red")
+        self.game_over_label = tk.Label(master, text="", font=("Helvetica", 20), fg="red")
         self.create_widgets()
+        self.first_decision = True
         self.place_mines()
+
+    def right_click(self, r, c):
+        if self.buttons[r][c]["text"] == "":
+            self.buttons[r][c].config(text="M")
+        elif self.buttons[r][c]["text"] == "M":
+            self.buttons[r][c].config(text="?")
+        elif self.buttons[r][c]["text"] == "?":
+            self.buttons[r][c].config(text="")
+
+
+    def count_mines(self, r, c):
+        count = 0
+        for i in range(r-1, r+2):
+            for j in range(c-1, c+2):
+                if 0 <= i < self.rows and 0 <= j < self.cols and j in self.mine_grid[i]:
+                    count += 1
+        return count
+    
+    
+    def fsreveal(self, r, c):
+        self.first_decision = False
+        if c in self.mine_grid[r]:
+            self.mine_grid[r].remove(c)
+            new_mine_found = False
+            while not new_mine_found:
+                r1 = random.randint(0, self.rows - 1)
+                c1 = random.randint(0, self.cols - 1)
+                if (c1 != c or r1 != r) and c1 not in self.mine_grid[r1]:
+                    self.mine_grid[r1].append(c1)
+                    new_mine_found = True
+        self.first_reveal(r, c)
 
     def create_widgets(self):
         for r in range(self.rows):
             row = []
             for c in range(self.cols):
-                btn = tk.Button(self.master, width=1, height=1,relief="flat", highlightbackground="black", highlightthickness=1)
-                btn.bind("<Button-1>", lambda e, r=r, c=c: self.first_reveal(r, c))  # Linksklick
-                btn.bind("<Button-3>", lambda e, r=r, c=c: self.mark_mine(r, c)) #rechtsklick was passiert
+                btn = tk.Button(self.master,relief="flat",width = 1,height = 1, highlightbackground="black", highlightthickness=1,font=("Helvetica", 12, "bold"))
+                btn.bind("<Button-1>", lambda e, r=r, c=c:self.fsreveal(r, c) if self.first_decision == True else self.first_reveal(r, c))  # Linksklick
+                btn.bind("<Button-3>", lambda e, r=r, c=c: self.right_click(r, c)) #rechtsklick was passiert
                 btn.grid(row=r, column=c)#button wird in grid platziert ort 
                 row.append(btn) #button wird in row hinzugefügt diese 2 zeilen sind für die referenz auf den button
             self.buttons.append(row) #row wird in buttons hinzugefügt
+            
 
     def place_mines(self):
         placed_mines = 0
@@ -221,12 +254,12 @@ class Minesweeper:
 
     def first_reveal(self, r, c):
         if c in self.mine_grid[r]:
-            self.buttons[r][c].config(text="*", bg="red", state="disabled")
+            self.buttons[r][c].config(text ="💣")
             self.game_over()
         else:
             amount_mines = self.count_mines(r, c)
             if amount_mines == 0:
-                self.buttons[r][c].config(text=" ", state="disabled", bg="white")
+                self.buttons[r][c].config(text="", bg="red")
                 self.second_reveal(r, c)
             else:
                 color = self.pick_color(amount_mines)
@@ -248,24 +281,14 @@ class Minesweeper:
                             self.buttons[i][j].config(text=amount_mines ,bg="white",fg=color)
                             
         
-    def mark_mine(self, r, c):
-        self.buttons[r][c].config(text="M")
-
-    def count_mines(self, r, c):
-        count = 0
-        for i in range(r-1, r+2):
-            for j in range(c-1, c+2):
-                if 0 <= i < self.rows and 0 <= j < self.cols and j in self.mine_grid[i]:
-                    count += 1
-        return count
     
     def game_over(self):
+        self.game_over_label.config(text="Game Over")
+        self.game_over_label.grid(row=self.rows, column=0, columnspan=self.cols)
         for r in range(self.rows):
             for c in range(self.cols):
                 if c in self.mine_grid[r]:
-                    self.buttons[r][c].config(text="*", bg="red")
-        self.game_over_label.config(text="Game Over")
-        self.game_over_label.grid(row=self.rows, column=0, columnspan=self.cols)
+                    self.buttons[r][c].config(text="💣",bg = "red")
 
     
     

@@ -11,18 +11,44 @@ class Minesweeper:
         self.mine_grid = [[] for _ in range(rows)] #leere liste für die mines 
         self.game_over_label = tk.Label(master, text="", font=("Helvetica", 24), fg="red")
         self.create_widgets()
+        self.first_decision = True
         self.place_mines()
 
+            
     def create_widgets(self):
         for r in range(self.rows):
             row = []
             for c in range(self.cols):
-                btn = tk.Button(self.master, width=2, height=1)
-                btn.bind("<Button-1>", lambda e, r=r, c=c: self.first_reveal(r, c))  # Linksklick
-                btn.bind("<Button-3>", lambda e, r=r, c=c: self.mark_mine(r, c)) #rechtsklick was passiert
+                btn = tk.Button(self.master, width=1, height=1)
+                btn.bind("<Button-1>", lambda e, r=r, c=c:self.fsreveal(r, c) if self.first_decision == True else self.first_reveal(r, c))  # Linksklick
+                btn.bind("<Button-3>", lambda e, r=r, c=c: self.right_click(r, c)) #rechtsklick was passiert
                 btn.grid(row=r, column=c)#button wird in grid platziert ort 
                 row.append(btn) #button wird in row hinzugefügt diese 2 zeilen sind für die referenz auf den button
             self.buttons.append(row) #row wird in buttons hinzugefügt
+    
+    def right_click(self, r, c):
+        if self.buttons[r][c]["text"] == "":
+            self.buttons[r][c].config(text="M")
+        elif self.buttons[r][c]["text"] == "M":
+            self.buttons[r][c].config(text="?")
+        elif self.buttons[r][c]["text"] == "?":
+            self.buttons[r][c].config(text="")
+        
+    
+    def fsreveal(self, r, c):
+        self.first_decision = False
+        if c in self.mine_grid[r]:
+            self.mine_grid[r].remove(c)
+            new_mine_found = False
+            while not new_mine_found:
+                r1 = random.randint(0, self.rows - 1)
+                c1 = random.randint(0, self.cols - 1)
+                if (c1 != c or r1 != r) and c1 not in self.mine_grid[r1]:
+                    self.mine_grid[r1].append(c1)
+                    new_mine_found = True
+        self.first_reveal(r, c)
+                    
+
 
     def place_mines(self):
         placed_mines = 0
@@ -58,8 +84,6 @@ class Minesweeper:
                         else:
                             self.buttons[i][j].config(text=amount_mines, state="disabled",bg="white")
         
-    def mark_mine(self, r, c):
-        self.buttons[r][c].config(text="M")
 
     def count_mines(self, r, c):
         count = 0
@@ -73,10 +97,15 @@ class Minesweeper:
         for r in range(self.rows):
             for c in range(self.cols):
                 if c in self.mine_grid[r]:
-                    self.buttons[r][c].config(text="*", bg="red")
+                    self.buttons[r][c].config(text="*", bg="red",state="disabled")
+                else:
+                    amount_mines = self.count_mines(r, c)
+                    self.buttons[r][c].config(text= " " if amount_mines == 0 else amount_mines,state="disabled",bg="white")
+                self.buttons[r][c].unbind("<Button-1>")
+                self.buttons[r][c].unbind("<Button-3>")
         self.game_over_label.config(text="Game Over")
         self.game_over_label.grid(row=self.rows, column=0, columnspan=self.cols)
-
+    
     
     
 
