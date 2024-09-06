@@ -167,7 +167,6 @@ def create_start_window(hauptfenster):
         except tk.TclError:  # spezifischer Fehler für ungültige Eingabe in IntVar
             fehlermeldung_label.config(text="Keine Zahl")
             fehlermeldung_label.place(x=25, y=330)
-            hauptfenster.after(2500, lambda: fehlermeldung_label.place_forget())  # Label nach 3 Sekunden entfernen
             
         except ValueError:  # Fehler bei der Umwandlung in eine Ganzzahl
                 fehlermeldung_label.config(text="Keine gültige Zahl")
@@ -176,8 +175,56 @@ def create_start_window(hauptfenster):
                 
     
     def open_rekord_window():
-        pass
+        
+        lines = []
+        with open("Tkinter_verstehen/Rekorde.txt", "r") as file:
+            lines = file.readlines()
+        
+        rekord_window = tk.Toplevel(hauptfenster)
+        rekord_window.title("Rekorde")
+        rekord_window.geometry("600x400")
+        
+        label_leicht = tk.Label(rekord_window, text="Leicht", font=("Helvetica", 12, "bold"), borderwidth=0, relief="groove")
+        label_leicht.place(x=75, y=10)
 
+        label_mittel = tk.Label(rekord_window, text="Mittel", font=("Helvetica", 12, "bold"), borderwidth=0, relief="groove")
+        label_mittel.place(x=175, y=10)
+
+        label_schwer = tk.Label(rekord_window, text="Schwer", font=("Helvetica", 12, "bold"), borderwidth=0, relief="groove")
+        label_schwer.place(x=275, y=10)
+
+        label_individuell = tk.Label(rekord_window, text="Individuell", font=("Helvetica", 12, "bold"), borderwidth=0, relief="groove")
+        label_individuell.place(x=375, y=10)
+        
+        krone_bild = tk.PhotoImage(file=r"Tkinter_verstehen/Krone.png")
+        
+        label_Krone = tk.Label(rekord_window,image = krone_bild)
+        label_Krone.image = krone_bild
+        label_Krone.place(x=10, y=30)
+        
+        #herausfindne wie viele rekorde es bei der jeweiligen schwierigkeit gibt
+        nLeicht,nMittel,nSchwer,nIndividuell = [],[],[],[]
+        
+        if os.path.isfile("Tkinter_verstehen/Rekorde.txt"):
+            with open("Tkinter_verstehen/Rekorde.txt", "r") as file: #r liest
+                nLeicht = file.readline().split()[1:] #lies nur die zeiten aus der zeile
+                nMittel = file.readline().split()[1:]
+                nSchwer = file.readline().split()[1:]
+                nIndividuell = file.readline().split()[1:]
+        
+
+        for i in range(len(nLeicht)):
+             tk.Label(rekord_window, text=nLeicht[i], font=("Helvetica", 12, "bold"), borderwidth=0, relief="groove").place(x=75, y=15+ (i+1) * 30)
+        
+        for i in range(len(nMittel)):
+            tk.Label(rekord_window, text=nMittel[i], font=("Helvetica", 12, "bold"), borderwidth=0, relief="groove").place(x=175, y=15+ (i+1) * 30)
+
+        for i in range(len(nSchwer)):
+             tk.Label(rekord_window, text=nSchwer[i], font=("Helvetica", 12, "bold"), borderwidth=0, relief="groove").place(x=275, y=15+ (i+1) * 30)
+        
+        for i in range(len(nIndividuell)):
+            tk.Label(rekord_window, text=nIndividuell[i], font=("Helvetica", 12, "bold"), borderwidth=0, relief="groove").place(x=375, y=15+ (i+1) * 30)
+    
     
     button_rekord = tk.Button(
         hauptfenster,
@@ -217,13 +264,14 @@ class Minesweeper:
         self.marked_mines = 0
         self.buttons = []
         self.mine_grid = [[] for _ in range(rows)] #leere liste für die mines
-        self.rekordfile = "Rekorde.txt"
+        self.rekordfile = "Tkinter_verstehen/Rekorde.txt"
         self.bomb_picture = tk.PhotoImage(file=r"Tkinter_verstehen/reset_button.png")
         self.game_over_label = tk.Label(master, text="", font=("Helvetica", 20), fg="red")
         self.game_won_label = tk.Label(master, text="", font=("Helvetica", 20), fg="green")
         self.stopwatch_label = tk.Label(master, text="00:00:00", font=("Helvetica", 14), fg="black")
         self.stopwatch_label.grid(row=0, column=0, columnspan=2)
-        
+        self.button_cheat = tk.Button(master,text = "eins aufdecken",command = lambda: self.cheat())
+        self.button_cheat.grid(row = 0, column = 4, columnspan = 5)
         self.reset_button = tk.Button(master,image=self.bomb_picture,activebackground=bg,command=lambda: self.reset(self.master,self.rows,self.cols,self.mines),borderwidth=0,highlightthickness=0)
         self.reset_button.grid(row=0, column=self.cols//2, columnspan=1) 
         self.count_marks_label = tk.Label(master, text=f"{self.mines}", font=("Helvetica", 14), fg="black")
@@ -236,6 +284,14 @@ class Minesweeper:
         self.seconds = 0
         self.milliseconds = 0
         self.schwierigkeit = self.get_schwierigkeit()
+        
+    
+    def cheat(self):
+        for r in range(self.rows):
+            for c in range(self.cols):
+                if c not in self.mine_grid[r] and self.buttons[r][c]["bg"] == "lightgrey":
+                    self.buttons[r][c].event_generate("<Button-1>")
+                    return
     
     def get_schwierigkeit(self):
         if self.rows == 8 and self.cols == 8 and self.mines == 10:
@@ -249,6 +305,7 @@ class Minesweeper:
         
     def reset(self,master, rows, cols, mines):
         self.game_over_label.config(text="")
+        self.game_won_label.config(text="")
         Minesweeper(master, rows, cols, mines)
     
 
@@ -379,13 +436,19 @@ class Minesweeper:
     
     
     def vergleiche_und_ersetze(self,line,zeit):
-        array = line.split(" ")[1:] #das erste element brauche ich nicht "Leicht bsp"
-        for i in range(len(array)): 
+        array = line.split(" ")[1:-1] #das erste element brauche ich nicht "Leicht bsp"
+        print("array: ",array)
+        added = False
+        for i in range(len(array)):
             if zeit < array[i]: #wenn die zeit kleiner ist als die zeit in der liste
                 array.insert(i,zeit) #dann füge die zeit an der stelle ein alle anderen nachfolgenden elemente werden nach rechts verschoben
-                if len(array) > 5:
-                    array.pop() #und entferne das letzte element falls es jetzt schon mehr als 5 elemente gibt-
+                added = True
                 break
+        if len(array) > 5:
+            array.pop() #das letzte element entfernen
+        if not added and len(array) < 5:
+            array.append(zeit)
+        array.append("\n")
         return " ".join(array) #array in string umwandeln
             
             
@@ -401,14 +464,29 @@ class Minesweeper:
                 elif self.schwierigkeit == "Individuell":
                     index = 3
                 
-                if len(lines[index].split()) == 1: # wennn nur "Leicht" drinne steht in zeile 1 eifnach adden
                 
-                    lines[index] = lines[index] + (f"{self.minutes:02}:{self.seconds:02}:{self.milliseconds:02} ")
+                print("index: ",index)
+                if len(lines[index].split()) == 1: # wennn nur "Leicht" drinne steht in zeile 1 eifnach adden
+                    print("bis jetzt steht nur leicht drinne")
+                    print("altes lines ",lines[index])
+                    lines[index] = lines[index].strip() + (f" {self.minutes:02}:{self.seconds:02}:{self.milliseconds:02} \n")
+                    print("neues lines ",lines[index])
+                    file.seek(0)
+                    file.writelines(lines)
                     
                 else:
-                    
-                    new_rekord_line =lines[index].split()[0] + self.vergleiche_und_ersetze(lines[index],f"{self.minutes:02}:{self.seconds:02}:{self.milliseconds:02}")
+                    new_rekord_line =lines[index].split()[0] + " "+ self.vergleiche_und_ersetze(lines[index],f"{self.minutes:02}:{self.seconds:02}:{self.milliseconds:02}")
                     lines[index] = new_rekord_line
+                    file.seek(0)
+                    file.writelines(lines)
+        
+        else:
+            with open(self.rekordfile, "w") as file:
+                file.write("Leicht \n")
+                file.write("Mittel \n")
+                file.write("Schwer \n")
+                file.write("Individuell \n")
+            self.write_rekord()
                 
                 
                         
@@ -440,7 +518,7 @@ class Minesweeper:
             for r in range(self.rows):
                 for c in range(self.cols):
                     if c in self.mine_grid[r]:
-                        self.buttons[r][c].config(text="💣",bg = "red")
+                        self.buttons[r][c].config(text="💣",bg = "lightgreen")
                     self.buttons[r][c].unbind("<Button-1>")
                     self.buttons[r][c].unbind("<Button-3>")
                     self.running = False
