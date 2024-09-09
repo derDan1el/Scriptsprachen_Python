@@ -264,8 +264,8 @@ class Minesweeper:
         self.marked_mines = 0
         self.buttons = []
         self.mine_grid = [[] for _ in range(rows)] #leere liste für die mines
-        self.rekordfile = "Tkinter_verstehen/Rekorde.txt"
-        self.bomb_picture = tk.PhotoImage(file=r"Tkinter_verstehen/reset_button.png")
+        self.rekordfile = "Rekorde.txt"
+        self.bomb_picture = tk.PhotoImage(file="reset_button.png")
         self.game_over_label = tk.Label(master, text="", font=("Helvetica", 20), fg="red")
         self.game_won_label = tk.Label(master, text="", font=("Helvetica", 20), fg="green")
         self.stopwatch_label = tk.Label(master, text="00:00:00", font=("Helvetica", 14), fg="black")
@@ -285,6 +285,32 @@ class Minesweeper:
         self.milliseconds = 0
         self.schwierigkeit = self.get_schwierigkeit()
         
+        self.KI_mines = [[] for _ in range(rows)]
+    
+    def pos_of_not_revealed_neighbours(self,r,c):
+        tuplist = []
+        for i in range(r-1, r+2):
+            for j in range(c-1, c+2):
+                if 0 <= i < self.rows and 0 <= j < self.cols and self.buttons[i][j]["text"] == "":
+                    tuplist.append((i,j))
+        return tuplist
+    
+    def KI_Vorschlag(self):
+        for r in range(self.rows):
+            for c in range(self.cols):
+                if self.buttons[r][c]["text"] != "":
+                    array = self.pos_of_not_revealed_neighbours(r,c)
+                    if int(self.buttons[r][c]["text"]) == len(array):
+                        for tup in array:
+                            if tup not in self.KI_mines[r]:
+                                self.KI_mines[r].append(tup) #zuerst minen finden und markieren in KI_mines
+                            """
+                            mine entdeckt -> schaue um mine ob etwas genau die zahl hat wie man minen weiß dann decke den rest auf
+                            
+                            """
+                                
+                    
+                    
     
     def cheat(self):
         for r in range(self.rows):
@@ -334,10 +360,12 @@ class Minesweeper:
             self.buttons[r][c].config(text="M")
             self.marked_mines += 1
             self.count_marks_label.config(text=f"{self.mines - self.marked_mines}")
+            self.buttons[r][c].unbind("<Button-1>")
         elif self.buttons[r][c]["text"] == "M":
             self.buttons[r][c].config(text="?")
             self.marked_mines -= 1
             self.count_marks_label.config(text=f"{self.mines - self.marked_mines}")
+            self.buttons[r][c].bind("<Button-1>", lambda e, r=r, c=c: self.fsreveal(r, c) if self.first_decision == True else self.first_reveal(r, c))
         elif self.buttons[r][c]["text"] == "?":
             self.buttons[r][c].config(text="")
 
