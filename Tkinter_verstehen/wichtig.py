@@ -12,8 +12,8 @@ def start_game_window(hautpfenster,rows,cols,mines):
     
 def create_start_window(hauptfenster):
     # Hauptfenster konfigurieren
-    hauptfenster.geometry("500x500")
     hauptfenster.title("Minesweeper Einstellungen")
+    hauptfenster.geometry("500x500")
     
     fehlermeldung_label = tk.Label(hauptfenster, text="", font=('Arial', 12), fg='red')
     
@@ -24,14 +24,14 @@ def create_start_window(hauptfenster):
     breite_textfeld = tk.Entry(hauptfenster, textvariable=str_Breite, width=10, font=('Arial', 12), fg='black')
     breite_textfeld.place(x=75,y=250)
     
-    label_Breite = tk.Label(hauptfenster, text="Breite:")
+    label_Breite = tk.Label(hauptfenster, text="Reihen:")
     label_Breite.place(x=25, y=250)
     
     höhe_textfeld = tk.Entry(hauptfenster, textvariable=str_Höhe, width=10, font=('Arial', 12), fg='black')
     höhe_textfeld.place(x=75,y=275)
     
-    label_Höhe = tk.Label(hauptfenster, text="Höhe:")
-    label_Höhe.place(x=25, y=275)
+    label_Höhe = tk.Label(hauptfenster, text="Spalten:")
+    label_Höhe.place(x=20, y=275)
 
     Minen_textfeld = tk.Entry(hauptfenster, textvariable=str_Minen, width=10, font=('Arial', 12), fg='black')
     Minen_textfeld.place(x=75,y=300)
@@ -177,7 +177,7 @@ def create_start_window(hauptfenster):
     def open_rekord_window():
         
         lines = []
-        with open("Tkinter_verstehen/Rekorde.txt", "r") as file:
+        with open("Rekorde.txt", "r") as file:
             lines = file.readlines()
         
         rekord_window = tk.Toplevel(hauptfenster)
@@ -196,7 +196,7 @@ def create_start_window(hauptfenster):
         label_individuell = tk.Label(rekord_window, text="Individuell", font=("Helvetica", 12, "bold"), borderwidth=0, relief="groove")
         label_individuell.place(x=375, y=10)
         
-        krone_bild = tk.PhotoImage(file=r"Tkinter_verstehen/Krone.png")
+        krone_bild = tk.PhotoImage(file=r"Krone.png")
         
         label_Krone = tk.Label(rekord_window,image = krone_bild)
         label_Krone.image = krone_bild
@@ -205,8 +205,8 @@ def create_start_window(hauptfenster):
         #herausfindne wie viele rekorde es bei der jeweiligen schwierigkeit gibt
         nLeicht,nMittel,nSchwer,nIndividuell = [],[],[],[]
         
-        if os.path.isfile("Tkinter_verstehen/Rekorde.txt"):
-            with open("Tkinter_verstehen/Rekorde.txt", "r") as file: #r liest
+        if os.path.isfile("Rekorde.txt"):
+            with open("Rekorde.txt", "r") as file: #r liest
                 nLeicht = file.readline().split()[1:] #lies nur die zeiten aus der zeile
                 nMittel = file.readline().split()[1:]
                 nSchwer = file.readline().split()[1:]
@@ -266,16 +266,25 @@ class Minesweeper:
         self.mine_grid = [[] for _ in range(rows)] #leere liste für die mines
         self.rekordfile = "Rekorde.txt"
         self.bomb_picture = tk.PhotoImage(file="reset_button.png")
+        
         self.game_over_label = tk.Label(master, text="", font=("Helvetica", 20), fg="red")
         self.game_won_label = tk.Label(master, text="", font=("Helvetica", 20), fg="green")
+        
         self.stopwatch_label = tk.Label(master, text="00:00:00", font=("Helvetica", 14), fg="black")
         self.stopwatch_label.grid(row=0, column=0, columnspan=2)
-        self.button_cheat = tk.Button(master,text = "eins aufdecken",command = lambda: self.cheat())
-        self.button_cheat.grid(row = 0, column = 4, columnspan = 5)
+        
+        #self.button_cheat = tk.Button(master,text = "cheat",command = lambda: self.cheat())
+        #self.button_cheat.grid(row = 0, column = 4, columnspan = 5)
+        
+        self.button_KI = tk.Button(master,text = "KI Move",command = lambda:self.KI_Move() )
+        self.button_KI.grid(row = 0, column = 1, columnspan = 5)
+        
         self.reset_button = tk.Button(master,image=self.bomb_picture,activebackground=bg,command=lambda: self.reset(self.master,self.rows,self.cols,self.mines),borderwidth=0,highlightthickness=0)
-        self.reset_button.grid(row=0, column=self.cols//2, columnspan=1) 
+        self.reset_button.grid(row=0, column=self.cols//2 +1, columnspan=1) 
+        
         self.count_marks_label = tk.Label(master, text=f"{self.mines}", font=("Helvetica", 14), fg="black")
         self.count_marks_label.grid(row=0, column=self.cols-1, columnspan=1)
+        
         self.create_widgets()
         self.first_decision = True
         self.place_mines()
@@ -285,32 +294,162 @@ class Minesweeper:
         self.milliseconds = 0
         self.schwierigkeit = self.get_schwierigkeit()
         
-        self.KI_mines = [[] for _ in range(rows)]
+        self.KI_mines = []
+        self.not_revealed_safe_fields = []
+        
+        
     
-    def pos_of_not_revealed_neighbours(self,r,c):
-        tuplist = []
-        for i in range(r-1, r+2):
-            for j in range(c-1, c+2):
-                if 0 <= i < self.rows and 0 <= j < self.cols and self.buttons[i][j]["text"] == "":
-                    tuplist.append((i,j))
-        return tuplist
-    
-    def KI_Vorschlag(self):
+    def KI_Move(self):
+        if self.first_decision:
+            self.lustiges_feature()
+        else:
+            tup = self.not_revealed_safe_fields.pop(0)
+            self.first_reveal(tup[0],tup[1])
+            
+        
+        
+####################################################################################################
+    def lustiges_feature(self):
+        self.button_KI.config(state="disabled")
+        self.first_decision = False
         for r in range(self.rows):
             for c in range(self.cols):
-                if self.buttons[r][c]["text"] != "":
-                    array = self.pos_of_not_revealed_neighbours(r,c)
-                    if int(self.buttons[r][c]["text"]) == len(array):
-                        for tup in array:
-                            if tup not in self.KI_mines[r]:
-                                self.KI_mines[r].append(tup) #zuerst minen finden und markieren in KI_mines
-                            """
-                            mine entdeckt -> schaue um mine ob etwas genau die zahl hat wie man minen weiß dann decke den rest auf
+                self.buttons[r][c].unbind("<Button-1>")
+        # Erstellen eines neuen Fensters für den Ladebalken
+        self.progress_window = tk.Toplevel(self.master)
+        self.progress_window.title("Ladebalken")    
+        # Erstellen des Canvas für den Ladebalken
+        self.canvas = tk.Canvas(self.progress_window, width=300, height=30, bg='white')
+        self.canvas.pack(pady=20)   
+        # Erstellen des Ladebalkens
+        self.progress_bar = self.canvas.create_rectangle(0, 0, 0, 30, fill='blue')
+        self.progressbar = tk.Label(self.progress_window, text="extremely difficult math computations!!!", font=("Helvetica", 14), fg="black")
+        self.progressbar.pack(pady=10)  
+        # Methode zum Aktualisieren des Fortschritts
+        def update_progress():
+            current_width = self.canvas.coords(self.progress_bar)[2]
+            if current_width < 300:
+                new_width = current_width + 3  # Erhöht die Breite des Ladebalkens
+                self.canvas.coords(self.progress_bar, 0, 0, new_width, 30)
+                self.progress_window.after(100, update_progress)  # Aktualisiert den Fortschritt alle 100 ms
+                if current_width == 150:
+                    self.progressbar.config(text="Intense Calculations!!!!!!!")
+                if current_width == 225:
+                    self.progressbar.config(text="ALMOST FINISHEDD!!!!!!!!")   
+            else:
+                self.progress_window.destroy()  # Schließt das Fenster, wenn der Fortschritt 100% erreicht
+                for r in range(self.rows):
+                    for c in range(self.cols):
+                        self.buttons[r][c].bind("<Button-1>", lambda e, r=r, c=c: self.fsreveal(r, c) if self.first_decision == True else self.first_reveal(r, c))
+                self.fsreveal(0,0)
+                self.button_KI.config(state="normal")
+        # Startet die Aktualisierung des Fortschritts
+        update_progress()
+        
+        
+        
+        
+        #Minen Finden
+####################################################################################################
+    #ist text eine zahl?
+    def is_number(self, str):
+        try:
+            int(str)
+            return True
+        except ValueError:
+            return False
+        
+    #ein button finden mit einer zahl:
+    def find_number(self):
+        for r in range(self.rows):
+            for c in range(self.cols):
+                if self.is_number(self.buttons[r][c]["text"]):
+                    self.get_unrevealed_neighbours(r,c)
+                
+    #finde heraus welche die unrevealed neighbours sind
+    def get_unrevealed_neighbours(self,r,c):
+        tup = []
+        for i in range(r-1, r+2):
+            for j in range(c-1, c+2):
+                if 0 <= i < self.rows and 0 <= j < self.cols and self.buttons[i][j]["bg"] == "lightgrey":
+                    tup.append((i,j))
+        return self.obvious_mines_check(r,c,tup)
+    
+    
+    #Anzahl der unrevealed neighbours gleich der anzahl der bombs around?
+    def obvious_mines_check(self,r,c,tupels):
+        if int(self.buttons[r][c]["text"]) == len(tupels):
+            for tup in tupels:
+                if tup not in self.KI_mines:
+                    self.KI_mines.append(tup)
+            
+            
+            
+            #find safe fields 
+####################################################################################################
+
+    def bombs_around(self,r,c):
+        tupel = []
+        for i in range(r-1, r+2):
+            for j in range(c-1, c+2):
+                if 0 <= i < self.rows and 0 <= j < self.cols and (i,j) in self.KI_mines:
+                    tupel.append((i,j))
+        return tupel
+    
+    def get_unrevealed_neighbours_tupels(self,r,c):
+        tup = []
+        for i in range(r-1, r+2):
+            for j in range(c-1, c+2):
+                if 0 <= i < self.rows and 0 <= j < self.cols and self.buttons[i][j]["bg"] == "lightgrey":
+                    tup.append((i,j))
+        return tup
+    
+
+    def find_safe_fields(self):
+        for r in range(self.rows):
+            for c in range(self.cols):
+                all_neighbours = self.get_unrevealed_neighbours_tupels(r,c)
+                known_bomb_neighbours = self.bombs_around(r,c)
+                #muss ne zahl sein#es müssen so viele bombs around sein wie die zahl#es muss mehr unrevealed neighbours geben als bombs around
+                if self.is_number(self.buttons[r][c]["text"]) and int(self.buttons[r][c]["text"]) == len(known_bomb_neighbours) < len(all_neighbours):
+                    for tup in all_neighbours:
+                        if tup not in known_bomb_neighbours and tup not in self.not_revealed_safe_fields:
+                            self.not_revealed_safe_fields.append(tup)
                             
-                            """
-                                
-                    
-                    
+
+    #geöffnete felder welche sich in not_revealed_safe_fields befinden entfernen:
+####################################################################################################
+    def remove_opened_fields(self):
+        for tup in self.not_revealed_safe_fields:
+            if self.buttons[tup[0]][tup[1]]["bg"] != "lightgrey":
+                self.not_revealed_safe_fields.remove(tup)
+
+
+    #Ki move button verfügbar?
+####################################################################################################
+
+    def check_KI_move_avail(self):
+        if self.first_decision:
+            return True
+        else:
+            self.remove_opened_fields()
+            self.find_number()
+            self.find_safe_fields()
+            self.remove_opened_fields()
+            if len(self.not_revealed_safe_fields) > 0:
+                return True
+            else: 
+                return False
+            
+    
+####################################################################################################
+    
+    
+    
+    
+    
+    
+    
     
     def cheat(self):
         for r in range(self.rows):
@@ -433,6 +572,14 @@ class Minesweeper:
             return "gray"
         else:
             return "black" 
+        
+        
+        
+    def __KI_helper_move(self):
+        if self.check_KI_move_avail():
+                self.button_KI.config(state="normal")
+        else:
+                self.button_KI.config(state="disabled")
 
     def first_reveal(self, r, c):
         if c in self.mine_grid[r]:
@@ -443,9 +590,15 @@ class Minesweeper:
             if amount_mines == 0:
                 self.buttons[r][c].config(text="", bg="white")
                 self.second_reveal(r, c)
+                
+                self.__KI_helper_move()
+                
             else:
                 color = self.pick_color(amount_mines)
                 self.buttons[r][c].config(text=amount_mines,fg=color,bg="white")
+                
+                self.__KI_helper_move()
+
         self.check_win()
 
           
@@ -465,7 +618,6 @@ class Minesweeper:
     
     def vergleiche_und_ersetze(self,line,zeit):
         array = line.split(" ")[1:-1] #das erste element brauche ich nicht "Leicht bsp"
-        print("array: ",array)
         added = False
         for i in range(len(array)):
             if zeit < array[i]: #wenn die zeit kleiner ist als die zeit in der liste
@@ -493,12 +645,8 @@ class Minesweeper:
                     index = 3
                 
                 
-                print("index: ",index)
                 if len(lines[index].split()) == 1: # wennn nur "Leicht" drinne steht in zeile 1 eifnach adden
-                    print("bis jetzt steht nur leicht drinne")
-                    print("altes lines ",lines[index])
                     lines[index] = lines[index].strip() + (f" {self.minutes:02}:{self.seconds:02}:{self.milliseconds:02} \n")
-                    print("neues lines ",lines[index])
                     file.seek(0)
                     file.writelines(lines)
                     
