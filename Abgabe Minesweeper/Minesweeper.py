@@ -2,6 +2,8 @@ import tkinter as tk
 import random
 import os
 
+
+#--------------------------nachdem man das Spiel zurücksetzt oder im Titelscreen aufgerufen
 def start_game_window(hautpfenster,rows,cols,mines):
     game_window = tk.Toplevel(hauptfenster)
     game_window.title("Minesweeper")
@@ -9,7 +11,7 @@ def start_game_window(hautpfenster,rows,cols,mines):
     
     
     
-    
+#--------------------------Alles zu dem Titelscreen um die Settings einzustellen
 def create_start_window(hauptfenster):
     # Hauptfenster konfigurieren
     hauptfenster.title("Minesweeper Einstellungen")
@@ -55,6 +57,8 @@ def create_start_window(hauptfenster):
     label_spielfeldgröße = tk.Label(hauptfenster, text="Individuell: max. 30x30 Felder, max 800 Minen")
     label_spielfeldgröße.place(x=75, y=210)
 
+
+#--------------------------Buttons für die Schwierigkeitsgrade und individuell ... ein wenig herumgespielt mit den Buttons was es denn so gibt
     button_leicht = tk.Button(
         hauptfenster,
         text="Start",
@@ -142,7 +146,7 @@ def create_start_window(hauptfenster):
     
 
     
-    
+#--------------------------Da individuell bestimmte Bedingungen erfüllen muss wie zb mehr felder als Minen oder keine negativen zahlen...
     def start_individuell():
         try:
             breite = int(str_Breite.get().lstrip("0"))
@@ -173,17 +177,21 @@ def create_start_window(hauptfenster):
                 fehlermeldung_label.place(x=25, y=330)
                 hauptfenster.after(2500, lambda: fehlermeldung_label.place_forget())  # Label nach 2,5 Sekunden entfernen
                 
-    
+
+#--------------------------Rekorde anzeigem... methode wird aufgerufen beim "Rekorde" button
     def open_rekord_window():
         
         lines = []
         with open("Rekorde.txt", "r") as file:
             lines = file.readlines()
         
+        #fenster settings
         rekord_window = tk.Toplevel(hauptfenster)
         rekord_window.title("Rekorde")
         rekord_window.geometry("600x400")
         
+        
+        #die "Tabelle" erstellen mit leicht mittel schwer individuell
         label_leicht = tk.Label(rekord_window, text="Leicht", font=("Helvetica", 12, "bold"), borderwidth=0, relief="groove")
         label_leicht.place(x=75, y=10)
 
@@ -212,7 +220,7 @@ def create_start_window(hauptfenster):
                 nSchwer = file.readline().split()[1:]
                 nIndividuell = file.readline().split()[1:]
         
-
+        #die rekorde in die labels schreiben und ordentlich untereinander aufreihen:
         for i in range(len(nLeicht)):
              tk.Label(rekord_window, text=nLeicht[i], font=("Helvetica", 12, "bold"), borderwidth=0, relief="groove").place(x=75, y=15+ (i+1) * 30)
         
@@ -302,13 +310,19 @@ class Minesweeper:
     def KI_Move(self):
         if self.first_decision:
             self.lustiges_feature()
+            self.button_KI.config(state="disabled")
+            self.check_KI_move_avail()
+            self.__KI_helper_move()
         else:
-            tup = self.not_revealed_safe_fields.pop(0)
-            self.first_reveal(tup[0],tup[1])
+            try:
+                tup = self.not_revealed_safe_fields.pop(0)
+                self.first_reveal(tup[0],tup[1])
+            except:
+                self.button_KI.config(state="disabled")
             
         
         
-####################################################################################################
+#######################################Lustiges Feature: gleich am Anfang Ki Move auswählen#############################################################
     def lustiges_feature(self):
         self.button_KI.config(state="disabled")
         self.first_decision = False
@@ -329,7 +343,7 @@ class Minesweeper:
         def update_progress():
             current_width = self.canvas.coords(self.progress_bar)[2]
             if current_width < 300:
-                new_width = current_width + 3  # Erhöht die Breite des Ladebalkens
+                new_width = current_width + 10#3  # Erhöht die Breite des Ladebalkens
                 self.canvas.coords(self.progress_bar, 0, 0, new_width, 30)
                 self.progress_window.after(100, update_progress)  # Aktualisiert den Fortschritt alle 100 ms
                 if current_width == 150:
@@ -450,7 +464,7 @@ class Minesweeper:
     
     
     
-    
+    #das können sie benutzen es gibt auc heinen cheat button um das spiel schnell zu gewinne nund die rekorde zu testen: 
     def cheat(self):
         for r in range(self.rows):
             for c in range(self.cols):
@@ -468,12 +482,13 @@ class Minesweeper:
         else:
             return "Individuell"
         
+    #reset button
     def reset(self,master, rows, cols, mines):
         self.game_over_label.config(text="")
         self.game_won_label.config(text="")
         Minesweeper(master, rows, cols, mines)
     
-
+    #stopuhr oben links im programm
     def update_stopwatch(self):
         if self.running:
             self.milliseconds += 1
@@ -517,7 +532,7 @@ class Minesweeper:
                     count += 1
         return count
     
-    
+    #fsreveal ist die aller erste entscheidung im spiel damit es keine mine ist wird eine neue mine an einer anderen stelle platziert
     def fsreveal(self, r, c):
         self.first_decision = False
         if c in self.mine_grid[r]:
@@ -532,6 +547,7 @@ class Minesweeper:
         self.start_stopwatch()
         self.first_reveal(r, c)
 
+    #erstellt alle buttons
     def create_widgets(self):
         for r in range(self.rows):
             row = []
@@ -552,7 +568,8 @@ class Minesweeper:
             if c not in self.mine_grid[r]:
                 self.mine_grid[r].append(c)
                 placed_mines += 1
-                
+    
+    # für die zahlen auf den feldern
     def pick_color(self,amount_mines):
         if amount_mines == 1:
             return "blue"
@@ -573,14 +590,14 @@ class Minesweeper:
         else:
             return "black" 
         
-        
-        
+    #checkt ob button aktiviert sein darf
     def __KI_helper_move(self):
         if self.check_KI_move_avail():
                 self.button_KI.config(state="normal")
         else:
                 self.button_KI.config(state="disabled")
 
+    #erstes aufdecken (nach der ersten entscheidung)
     def first_reveal(self, r, c):
         if c in self.mine_grid[r]:
             self.buttons[r][c].config(text ="💣")
@@ -601,7 +618,7 @@ class Minesweeper:
 
         self.check_win()
 
-          
+    #wenn es keine minen in der nähe gibt wird das hier aufgerufen um mehr aufzudecken
     def second_reveal(self, r, c):
         for i in range(r-1, r+2):
             for j in range(c-1, c+2):
@@ -616,6 +633,7 @@ class Minesweeper:
                             self.buttons[i][j].config(text=amount_mines ,bg="white",fg=color)
     
     
+    #vergleiche und ersetze die zeiten in der rekorde datei
     def vergleiche_und_ersetze(self,line,zeit):
         array = line.split(" ")[1:-1] #das erste element brauche ich nicht "Leicht bsp"
         added = False
@@ -631,7 +649,7 @@ class Minesweeper:
         array.append("\n")
         return " ".join(array) #array in string umwandeln
             
-            
+    #rekord schreiben
     def write_rekord(self):
         if os.path.isfile(self.rekordfile):
             with open(self.rekordfile, "r+") as file: #r+ liest und schreibt
@@ -699,12 +717,7 @@ class Minesweeper:
                     self.buttons[r][c].unbind("<Button-3>")
                     self.running = False
             self.write_rekord()
-            
-    
-                
-                
 
-    #wenn es felder gibt die noch nicht aufgedeckt sind dann sind diese grau
     
 if __name__ == "__main__":
     hauptfenster = tk.Tk()
