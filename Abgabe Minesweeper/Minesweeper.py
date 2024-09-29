@@ -290,7 +290,7 @@ class Minesweeper:
         self.reset_button = tk.Button(master,image=self.bomb_picture,activebackground=bg,command=lambda: self.reset(self.master,self.rows,self.cols,self.mines),borderwidth=0,highlightthickness=0)
         self.reset_button.grid(row=0, column=self.cols//2 +1, columnspan=1) 
         
-        self.count_marks_label = tk.Label(master, text=f"{self.mines}", font=("Helvetica", 14), fg="black")
+        self.count_marks_label = tk.Label(master, text=self.mines, font=("Helvetica", 14), fg="black")
         self.count_marks_label.grid(row=0, column=self.cols-1, columnspan=1)
         
         self.create_widgets()
